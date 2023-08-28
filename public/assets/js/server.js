@@ -17,41 +17,43 @@ app.get('/', (req, res) =>
     res.sendFile(path.join(_dirname, './public/index.html'))
 );
 
-app.get('./api/notes', (req, res) => {
-    res.json(`${req.method} request received to get notes`);
-    console.info(`${req.method} request received to get notes`);
+app.get('/api/notes', (req, res) => {
+    // Reads db.json file and returns the content as JSON
+    fs.readFile('db.json', 'urf8', (err, data) => {
+        if (err) {
+            console.log(err);
+            res.status(500).json({ error: 'Internal server error' });
+            return;
+        }
+
+        try {
+            const notes = JSON.parse(data);
+            res.json(notes);
+        } catch (parseError) {
+            console.log(parseError);
+            res.status(500).json({ error: 'Error parsing JSON data' });
+        }
+    });
 });
 
-app.post('./api/notes', (req, res) => {
-    console.info(`${req.method} request received to add a new note`);
+app.post('/api/notes', (req, res) => {
+    try {
+        const newNote = req.body;
+        newNote.id = uuid();
 
-    const { title, text } = req.body;
+        // Reads existing notes from the db.json file
+        const existingNotes = JSON.parse(fs.readFileSync('db.json', 'utf8'));
 
-    if (title && text) {
-        const newNote = {
-            title,
-            text,
-            review_id: uuid(),
-        };
+        // Adds new not to existing notes
+        existingNotes.push(newNote);
 
-        const noteString = JSON.stringify(newNote);
+        // Writes updated notes back to db.json file
+        fs.writeFileSync('db.json', JSON.stringify(existingNotes));
 
-        fs.writeFile(`./db/${newNote}.json`, noteString, (err) => 
-        err
-            ? console.error(err)
-            : console.log(`${newNote} has been added to your notes`
-            ))
-    
-
-    const response = {
-        status: 'success',
-        body: newNote,
-    };
-
-    console.log(response);
-      res.status(201).json(response);
-    } else {
-      res.status(500).json('Error in posting note');
+        res.status(201).json(newNote);
+    } catch (error) {
+        console.error('Error creating note:', error);
+        res.status(500).json({ error: 'Failed to create note' });
     }
 });
 
