@@ -1,3 +1,5 @@
+const server = require('./server');
+
 let noteTitle;
 let noteText;
 let saveNoteBtn;
@@ -26,11 +28,11 @@ const hide = (elem) => {
 let activeNote = {};
 
 const getNotes = () =>
-  fetch('/api/notes', {
+  fetch('./api/notes', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-    },
+    }
   });
 
 const saveNote = (note) =>
@@ -181,3 +183,4 @@ if (window.location.pathname === '/notes') {
 }
 
 getAndRenderNotes();
+server.start();

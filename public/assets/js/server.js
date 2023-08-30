@@ -17,6 +17,14 @@ app.get('/', (req, res) =>
     res.sendFile(path.join(_dirname, './public/index.html'))
 );
 
+fs.readFile('index.html', 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading index.html:', err);
+        return;
+    }
+    console.log(data);
+})
+
 app.get('/api/notes', (req, res) => {
     // Reads db.json file and returns the content as JSON
     fs.readFile('db.json', 'urf8', (err, data) => {
@@ -57,6 +65,13 @@ app.post('/api/notes', (req, res) => {
     }
 });
 
+const start = () => {
 app.listen(PORT, () => {
+    const PORT = process.env.PORT || 3001;
     console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = {
+    start,
+}
+};
