@@ -4,5 +4,5 @@
 
 # Links
 
-## Heroku: https://bwilliams-note-taker-4830fd8bcbd3.herokuapp.com/
-## Repo: https://github.com/Bwilliams-88/notes-project
+## https://bwilliams-note-taker-4830fd8bcbd3.herokuapp.com/
+## https://github.com/Bwilliams-88/notes-project
