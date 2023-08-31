@@ -18,8 +18,8 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'))
 });
 
-app.get('/api/notes/:id', (req, res) => {
-    console.log('hello')
+app.get('/api/notes/', (req, res) => {
+    
     // Reads db.json file and returns the content as JSON
     fs.readFile('./db/db.json', 'utf8', (err, data) => {
         if (err) {
@@ -27,17 +27,10 @@ app.get('/api/notes/:id', (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
             return;
         }
-        console.log(data);
+        
         res.status(200).send(data);
     });
-    const id = parseInt(req.params.id);
-    const note = notes.find(note => note.id === id);
 
-    if (note) {
-        res.json(note);
-    } else {
-        res.status(404).json({ message: 'Note not found' });
-    }
 });
 
 app.post('/api/notes', (req, res) => {
@@ -59,21 +52,14 @@ app.post('/api/notes', (req, res) => {
         console.error('Error creating note:', error);
         res.status(500).json({ error: 'Failed to create note' });
     }
-    const { content } = req.body;
-    const id = notes.length + 1;
-    const note = { id, content };
-    notes.push(note);
-    res.status(201).json(note);
 });
 
-app.delete('/notes/:id', (req, res) => {
-    const noteId = parseInt(req.params.id);
-    const index = notes.findIndex(note => note.id === noteId);
+app.delete('/api/notes/:id', (req, res) => {
+    const noteId = req.params.id;
+    const existingNotes = JSON.parse(fs.readFileSync('./db/db.json', 'utf8'));
+    const notes = existingNotes.filter(note => note.id !== noteId);
 
-    if (index === -1) {
-        return res.status(404).json({ message: 'Note not found' });
-    }
-    notes.splice(index, 1);
+    fs.writeFileSync('./db/db.json', JSON.stringify(notes));
     return res.status(204).send();
 });
 
